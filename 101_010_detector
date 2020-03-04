@@ -1,0 +1,128 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 18.02.2020 13:55:48
+-- Design Name: 
+-- Module Name: ps1 - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity ps1_for_tb is
+    Port (  clk  : in STD_LOGIC;
+           inp : in STD_LOGIC;
+           reset: in std_logic; -- reset input
+           y : out STD_LOGIC);
+end ps1_for_tb;
+
+architecture Behavioral of ps1_for_tb is
+
+---------------clock divider-----------------------
+
+type FSM is (s0,s1,s2,s3,s4);
+signal current_state, next_state: FSM;
+   
+   begin
+process (clk,inp)
+     begin 
+     if (reset = '1') then
+     current_state <= s0;
+     elsif (rising_edge(clk) )  then   
+            if (inp = '1' or inp='0') then
+                 current_state <= next_state;
+           end if;  
+           end if;  
+          end process;
+
+process(current_state,inp)
+begin
+--if (o='1') then
+--led<='1';
+--end if;
+
+--if (z='1') then
+--led<='1';
+--end if;
+
+ case(current_state) is
+ when s0 =>
+  if(inp='1') then
+   -- "1"
+   next_state <= s3;
+      y<='0';
+   end if;
+  if(inp='0')then
+   next_state <= s1;
+     y<='0';
+  end if;
+
+ when s1 =>
+  if(inp='1') then
+   next_state <= s2;
+      y<='0';
+   end if;
+  if(inp='0')then
+   next_state <= s1;
+      y<='0';
+  end if;
+  
+  when s2 =>
+  if(inp='1') then
+   -- "1"
+   next_state <= s3;
+      y<='0';
+   end if;
+  if(inp='0')then
+   next_state <= s4;
+   y<='1';
+  end if;
+  
+  when s3 =>
+  if(inp='1') then
+   -- "1"
+   next_state <= s3;
+      y<='0';
+   end if;
+  if(inp='0')then
+   next_state <= s4;
+      y<='0';
+  end if;
+  
+  when s4 =>
+  if(inp='1') then
+   -- "1"
+   next_state <= s2;
+   y<='1';
+   end if;
+  if(inp='0')then
+   next_state <= s1;
+      y<='0';
+  end if;
+  
+  end case;
+  end process;
+end Behavioral;
