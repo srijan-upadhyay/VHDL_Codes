@@ -1,0 +1,177 @@
+----------------------------------------------------------------------------------
+-- Company: IITD
+-- Engineer: Srijan Upadhyay
+-- 
+-- Create Date: 18.02.2020 13:55:48
+-- Design Name: 
+-- Module Name: ps1 - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity ps1 is
+    Port ( zero : in STD_LOGIC;
+           clk  : in STD_LOGIC;
+           one : in STD_LOGIC;
+           reset: in std_logic; -- reset input
+           led1 : out std_logic;
+           led0 : out std_logic;
+          -- clkled : out std_logic;
+           y : out STD_LOGIC);
+end ps1;
+
+architecture Behavioral of ps1 is
+
+---------------clock divider-----------------------
+signal count: STD_LOGIC_VECTOR(24 downto 0) := "1011111010111100001000000"; -- 12,500,000 in binary
+--signal count1: STD_LOGIC_VECTOR(25 downto 0) := "10111110101111000010000000"; -- 12,500,000 in binary
+
+signal count1: STD_LOGIC_VECTOR(28 downto 2) := (others => '0');
+signal clk1 : std_logic := '0';
+signal clk2 : std_logic := '0';
+type FSM is (s0,s1,s2,s3,s4);
+signal current_state, next_state: FSM;
+Signal OP1, OP2, OP3, OP4, OP5, Op6, z, o: std_logic;
+
+begin
+    countClock: process(clk, clk1,clk2,zero,one)
+    begin
+        if rising_edge(clk) then
+       -- count1 <= std_logic_vector(unsigned(count1) + 1);
+            count1 <= count1 + 1;
+            if(count1 > count) then
+                clk1 <= not Clk1;
+                clk2 <=  not clk2;
+                count1 <= (others => '0');
+            end if;
+        end if;
+------------------------Debounce logic----------------
+If (rising_edge(clk1)) then
+OP1 <= zero;
+OP2 <= OP1;
+OP3 <= OP2;
+
+OP4 <= one;
+OP5 <= OP4;
+OP6 <= OP5;
+end if;
+z <= OP1 and OP2 and OP3 ;
+o <= OP4 and OP5 and OP6 ;
+end process;
+------------turning led on if 0 or 1 is detected-----------
+led0 <= z;
+led1 <= o;
+-----------------------------------------------------------
+--process(clk2)
+--begin
+--if(rising_edge(clk2)) then
+   -- clkled <= '1';
+--   end if;
+ -- end process;
+  
+synchronous_process : process (clk2,z,o)
+     begin 
+    -- Led4 <= newClock1;
+     if (reset = '1') then
+     current_state <= s0;
+     elsif (rising_edge(clk1) )  then   
+            if (o = '1' or z = '1') then
+                 current_state <= next_state;
+                --Led3 <= '1';
+           end if;  
+           end if;    
+        --   Led3 <= '1';  
+          end process;
+
+process(current_state,o,z)
+begin
+--if (o='1') then
+--led<='1';
+--end if;
+
+--if (z='1') then
+--led<='1';
+--end if;
+
+ case(current_state) is
+ when s0 =>
+  if(o='1') then
+   -- "1"
+   next_state <= s3;
+      y<='0';
+   end if;
+  if(z='1')then
+   next_state <= s2;
+     y<='0';
+  end if;
+
+ when s1 =>
+  if(o='1') then
+   -- "1"
+   next_state <= s2;
+      y<='0';
+   end if;
+  if(z='1')then
+   next_state <= s1;
+      y<='0';
+  end if;
+  
+  when s2 =>
+  if(o='1') then
+   -- "1"
+   next_state <= s3;
+      y<='0';
+   end if;
+  if(z='1')then
+   next_state <= s4;
+   y<='1';
+  end if;
+  
+  when s3 =>
+  if(o='1') then
+   -- "1"
+   next_state <= s3;
+      y<='0';
+   end if;
+  if(z='1')then
+   next_state <= s4;
+      y<='0';
+  end if;
+  
+  when s4 =>
+  if(o='1') then
+   -- "1"
+   next_state <= s2;
+   y<='1';
+   end if;
+  if(z='1')then
+   next_state <= s1;
+      y<='0';
+  end if;
+  
+  end case;
+  end process;
+end Behavioral;
